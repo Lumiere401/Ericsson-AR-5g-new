@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,6 +37,20 @@ using M2MqttUnity;
 /// </summary>
 namespace M2MqttUnity.Examples
 {
+    // Beam json serialization struture
+    [System.Serializable]
+    public class BeamIndexData
+    {
+        public String timestamp;
+        public int beamIndex;
+        public int sinr;
+        BeamIndexData(String t, int index, int s)
+        {
+            this.timestamp = t;
+            this.beamIndex = index;
+            this.sinr = s;
+        }
+    }
     /// <summary>
     /// Script for testing M2MQTT with a Unity UI
     /// </summary>
@@ -45,6 +60,9 @@ namespace M2MqttUnity.Examples
         public bool autoTest = false;
         [Tooltip("Topic name that broker will subscribe")]
         public String topicSub = null;
+        [Tooltip("If true, using the local data and publish on localhost")]
+        public bool LocalTesting = false;
+        public TextAsset jsonFile; // Drag and drop your JSON file in the Unity Inspector.
         [Header("User Interface")]
         public InputField consoleInputField;
         public Toggle encryptedToggle;
@@ -57,11 +75,45 @@ namespace M2MqttUnity.Examples
         public float speed;
 
         private List<string> eventMessages = new List<string>();
+        private List<BeamIndexData> beams;
         private bool updateUI = false;
 
-        public void TestPublish()
+        protected override void Start()
         {
-            client.Publish("M2MQTT_Unity/test", System.Text.Encoding.UTF8.GetBytes("Test message"), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+            SetUiMessage("Ready.");
+            beams = new List<BeamIndexData>();
+            if (LocalTesting)
+            {
+                this.topicSub = "beam/testing";
+                this.brokerAddress = "127.0.0.1";
+
+                if (jsonFile != null)
+                {
+                    string jsonText = jsonFile.text;
+                    // You can now parse the JSON data using a JSON parser, e.g., JSONUtility or a third-party library like Newtonsoft.Json.
+                    // Example using JSONUtility:
+                    using (StringReader reader = new StringReader(jsonText))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            BeamIndexData data = JsonUtility.FromJson<BeamIndexData>(line);
+                            beams.Add(data);
+                        }
+                    }
+                    StartCoroutine(PublishBeamIndexMessages());
+                }
+                else
+                {
+                    Debug.LogError("JSON file not found. Make sure to assign it in the Inspector.");
+                }
+            }
+            base.Start();
+            updateUI = true;
+        }
+        public void TestPublish(BeamIndexData msg)
+        {
+            client.Publish("beam/testing", System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg)), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
             Debug.Log("Test message published");
             AddUiMessage("Test message published.");
         }
@@ -110,6 +162,24 @@ namespace M2MqttUnity.Examples
             }
         }
 
+        protected IEnumerator PublishBeamIndexMessages()
+        {
+            BeamIndexData last_msg = beams[0];
+            foreach (BeamIndexData msg in beams)
+            {
+                // Calculate the delay based on the message timestamp
+                TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
+
+                if (delay.Seconds > 0)
+                {
+                    yield return new WaitForSeconds(delay.Seconds);
+                }
+                last_msg = msg;
+                // Publish the message to an MQTT topic
+                TestPublish(msg);
+            }
+        }
+
         protected override void OnConnecting()
         {
             base.OnConnecting();
@@ -121,10 +191,6 @@ namespace M2MqttUnity.Examples
             base.OnConnected();
             SetUiMessage("Connected to broker on " + brokerAddress + "\n");
 
-            if (autoTest)
-            {
-                TestPublish();
-            }
         }
 
         protected override void SubscribeTopics()
@@ -200,12 +266,6 @@ namespace M2MqttUnity.Examples
             updateUI = false;
         }
 
-        protected override void Start()
-        {
-            SetUiMessage("Ready.");
-            updateUI = true;
-            base.Start();
-        }
 
         protected override void DecodeMessage(string topic, byte[] message)
         {
@@ -263,4 +323,5 @@ namespace M2MqttUnity.Examples
             }
         }
     }
+
 }

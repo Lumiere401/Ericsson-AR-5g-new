@@ -22,15 +22,15 @@ public class BeamIndexMapping : MonoBehaviour
     public bool move;
 
 
-
+    private void Awake()
+    {
+        transform.rotation = Quaternion.Euler(0, 90, 0);
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         move = true;
-
-       transform.rotation = Quaternion.Euler(0, 90, 0);
-
 
         StartCoroutine(MoveRayEverySecond());
 
@@ -49,7 +49,8 @@ public class BeamIndexMapping : MonoBehaviour
 
                 if (beamIndex > 172 && beamIndex < 209) continue;
                 MoveRay(beamIndex);
-                yield return new WaitForFixedUpdate();
+                yield return new WaitForSecondsRealtime(1);
+                // yield return new WaitForFixedUpdate();
             }
 
 
@@ -91,7 +92,7 @@ public class BeamIndexMapping : MonoBehaviour
 
         Vector3 direction = Quaternion.Euler(degreeVertical, degreeHorizontal, 0) * Vector3.forward;
         Quaternion worldRotation = transform.rotation;
-        //direction = worldRotation * direction; // Convert the direction to world space
+        direction = worldRotation * direction; // Convert the direction to world space
 
 
 

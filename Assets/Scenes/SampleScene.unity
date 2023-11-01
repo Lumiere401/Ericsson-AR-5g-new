@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.2850269, g: 0.3713935, b: 0.49601045, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -266,6 +266,11 @@ MonoBehaviour:
   m_CaretWidth: 1
   m_ReadOnly: 0
   m_ShouldActivateOnSelect: 1
+--- !u!4 &170746373 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
+  m_PrefabInstance: {fileID: 1362892039}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &296202115
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,84 +591,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1092805422}
   m_CullTransparentMesh: 1
---- !u!4 &1158678332 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
-  m_PrefabInstance: {fileID: 1340852893}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &1340852893
+--- !u!1001 &1362892039
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 1869926582}
     m_Modifications:
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.7071068
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3978090854820112627, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: -8679921383154817045, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7619241819723200391, guid: 973a1f26a184bd64095efea79011090e, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7942927231597666251, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+    - target: {fileID: 919132149155446097, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_Name
-      value: Ericsson_Lobby_prefab
-      objectReference: {fileID: 0}
-    - target: {fileID: 8108623084891596426, guid: 973a1f26a184bd64095efea79011090e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8108623084891596426, guid: 973a1f26a184bd64095efea79011090e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8108623084891596426, guid: 973a1f26a184bd64095efea79011090e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: Ericsson Lobby
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 973a1f26a184bd64095efea79011090e, type: 3}
+  m_SourcePrefab: {fileID: 100100000, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
 --- !u!1 &1395156560
 GameObject:
   m_ObjectHideFlags: 0
@@ -1213,18 +1197,35 @@ Transform:
   m_Father: {fileID: 1411479146}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1792602880 stripped
+--- !u!1 &1794707040 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 7619241819723200391, guid: 973a1f26a184bd64095efea79011090e, type: 3}
-  m_PrefabInstance: {fileID: 1340852893}
+  m_CorrespondingSourceObject: {fileID: -7146521406498821007, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
+  m_PrefabInstance: {fileID: 1362892039}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1792602885
+--- !u!114 &1794707044
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1792602880}
+  m_GameObject: {fileID: 1794707040}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b00f1be1f704964fa3981703c441027, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FiveGBox: {fileID: 1794707040}
+  widthUnit: 20
+  heightUnit: 20
+  move: 0
+  beamIndex: 0
+--- !u!114 &1794707045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1794707040}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b48c43173a2f1fe4b8b0a6dbc4260e4e, type: 3}
@@ -1235,7 +1236,7 @@ MonoBehaviour:
   degreeHorizontal: 0
   degreeVertical: 0
   beamIndex: 37
-  move: 0
+  move: 1
 --- !u!1 &1869926580
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,7 +1282,7 @@ Transform:
   - {fileID: 7476099690255244659}
   - {fileID: 296202116}
   - {fileID: 8048008659480833067}
-  - {fileID: 1158678332}
+  - {fileID: 170746373}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1320,10 +1321,12 @@ MonoBehaviour:
   connectionDelay: 500
   timeoutOnConnection: 30000
   autoConnect: 1
-  mqttUserName: ldt220503
-  mqttPassword: ldt220503
+  mqttUserName: idt220503
+  mqttPassword: idt220503
   autoTest: 1
   topicSub: EricssonONE/EnergyAware/edallam/sensors/power/p1meter/metrics
+  LocalTesting: 1
+  jsonFile: {fileID: 4900000, guid: 09c8f3f02afee87498991601b92317c2, type: 3}
   consoleInputField: {fileID: 61294434}
   encryptedToggle: {fileID: 0}
   addressInputField: {fileID: 0}
@@ -1332,6 +1335,7 @@ MonoBehaviour:
   disconnectButton: {fileID: 0}
   testPublishButton: {fileID: 0}
   clearButton: {fileID: 0}
+  speed: 0
 --- !u!4 &1925323697
 Transform:
   m_ObjectHideFlags: 0
@@ -1471,7 +1475,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b00f1be1f704964fa3981703c441027, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FiveGBox: {fileID: 1792602880}
+  FiveGBox: {fileID: 0}
   widthUnit: 0.044
   heightUnit: 0.05
   move: 1
