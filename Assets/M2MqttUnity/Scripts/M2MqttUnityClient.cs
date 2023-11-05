@@ -53,7 +53,7 @@ namespace M2MqttUnity
         [Tooltip("Connection timeout in milliseconds")]
         public int timeoutOnConnection = MqttSettings.MQTT_CONNECT_TIMEOUT;
         [Tooltip("Connect on startup")]
-        public bool autoConnect = false;
+        public bool autoConnect = true;
         [Tooltip("UserName for the MQTT broker. Keep blank if no user name is required.")]
         public string mqttUserName = null;
         [Tooltip("Password for the MQTT broker. Keep blank if no password is required.")]
@@ -167,6 +167,10 @@ namespace M2MqttUnity
         {
             frontMessageQueue = messageQueue1;
             backMessageQueue = messageQueue2;
+            if (autoConnect)
+            {
+                Connect();
+            }
         }
 
         /// <summary>
@@ -174,10 +178,7 @@ namespace M2MqttUnity
         /// </summary>
         protected virtual void Start()
         {
-            if (autoConnect)
-            {
-                Connect();
-            }
+          
         }
 
         /// <summary>
@@ -281,7 +282,7 @@ namespace M2MqttUnity
                     client = new MqttClient(brokerAddress, brokerPort, isEncrypted, null, null, isEncrypted ? MqttSslProtocols.SSLv3 : MqttSslProtocols.None);
                     //System.Security.Cryptography.X509Certificates.X509Certificate cert = new System.Security.Cryptography.X509Certificates.X509Certificate();
                     //client = new MqttClient(brokerAddress, brokerPort, isEncrypted, cert, null, MqttSslProtocols.TLSv1_0, MyRemoteCertificateValidationCallback);
-#endif
+#endif              
                 }
                 catch (Exception e)
                 {
@@ -296,7 +297,6 @@ namespace M2MqttUnity
                 yield break;
             }
             OnConnecting();
-
             // leave some time to Unity to refresh the UI
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
@@ -310,9 +310,9 @@ namespace M2MqttUnity
             catch (Exception e)
             {
                 client = null;
+                yield break;
                 Debug.LogErrorFormat("Failed to connect to {0}:{1}:\n{2}", brokerAddress, brokerPort, e.ToString());
                 OnConnectionFailed(e.Message);
-                yield break;
             }
             if (client.IsConnected)
             {

@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 using System;
+using System.Threading;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -75,18 +76,30 @@ namespace M2MqttUnity.Examples
         public float speed;
 
         private List<string> eventMessages = new List<string>();
-        private List<BeamIndexData> beams;
+        private Queue<BeamIndexData> beams;
+        private BeamIndexData last_msg;
         private bool updateUI = false;
 
-        protected override void Start()
+        protected override void Awake()
         {
-            SetUiMessage("Ready.");
-            beams = new List<BeamIndexData>();
             if (LocalTesting)
             {
                 this.topicSub = "beam/testing";
                 this.brokerAddress = "127.0.0.1";
+                //this.mqttUserName = null;
+                //this.mqttPassword = null;
+            }
+            base.Awake(); // Call the base class's Awake method
+                          // Additional initialization specific to ChildClass
+        }
 
+        protected override void Start()
+        {
+            SetUiMessage("Ready.");
+            beams = new Queue<BeamIndexData>();
+            if (LocalTesting)
+            {
+                base.Start();
                 if (jsonFile != null)
                 {
                     string jsonText = jsonFile.text;
@@ -98,24 +111,27 @@ namespace M2MqttUnity.Examples
                         while ((line = reader.ReadLine()) != null)
                         {
                             BeamIndexData data = JsonUtility.FromJson<BeamIndexData>(line);
-                            beams.Add(data);
+                            beams.Enqueue(data);
                         }
                     }
-                    StartCoroutine(PublishBeamIndexMessages());
                 }
                 else
                 {
                     Debug.LogError("JSON file not found. Make sure to assign it in the Inspector.");
                 }
             }
-            base.Start();
+            else
+            {
+                base.Start();
+            }
             updateUI = true;
         }
-        public void TestPublish(BeamIndexData msg)
+
+        private void TestPublish(BeamIndexData msg)
         {
             client.Publish("beam/testing", System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg)), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
             Debug.Log("Test message published");
-            AddUiMessage("Test message published.");
+            //AddUiMessage("Test message published.");
         }
 
         public void SetBrokerAddress(string brokerAddress)
@@ -164,20 +180,21 @@ namespace M2MqttUnity.Examples
 
         protected IEnumerator PublishBeamIndexMessages()
         {
-            BeamIndexData last_msg = beams[0];
-            foreach (BeamIndexData msg in beams)
+            if (last_msg == null)
             {
-                // Calculate the delay based on the message timestamp
-                TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
-
-                if (delay.Seconds > 0)
-                {
-                    yield return new WaitForSeconds(delay.Seconds);
-                }
-                last_msg = msg;
-                // Publish the message to an MQTT topic
-                TestPublish(msg);
+                last_msg = beams.Dequeue();
             }
+            BeamIndexData msg = beams.Dequeue();
+            // calculate the delay based on the message timestamp
+            TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
+
+            if (delay.Seconds > 0)
+            {
+                yield return new WaitForSeconds(delay.Seconds);
+            }
+            last_msg = msg;
+            // publish the message to an mqtt topic
+            TestPublish(msg);
         }
 
         protected override void OnConnecting()
@@ -295,7 +312,10 @@ namespace M2MqttUnity.Examples
         protected override void Update()
         {
             base.Update(); // call ProcessMqttEvents()
-
+            if (client != null && beams.Count > 0)
+            {
+                StartCoroutine(PublishBeamIndexMessages());
+            }
             if (eventMessages.Count > 0)
             {
                 foreach (string msg in eventMessages)
