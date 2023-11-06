@@ -284,20 +284,53 @@ namespace M2MqttUnity.Examples
         }
 
 
+        // protected override void DecodeMessage(string topic, byte[] message)
+        // {
+        //     string msg = System.Text.Encoding.UTF8.GetString(message);
+        //     Debug.Log("Received: " + msg);
+        //     StoreMessage(msg);
+        //     if (topic == "M2MQTT_Unity/test")
+        //     {
+        //         if (autoTest)
+        //         {
+        //             autoTest = false;
+        //             Disconnect();
+        //         }
+        //     }
+        // }
+
         protected override void DecodeMessage(string topic, byte[] message)
-        {
-            string msg = System.Text.Encoding.UTF8.GetString(message);
-            Debug.Log("Received: " + msg);
-            StoreMessage(msg);
-            if (topic == "M2MQTT_Unity/test")
-            {
-                if (autoTest)
-                {
-                    autoTest = false;
-                    Disconnect();
-                }
-            }
-        }
+{
+    // Convert the byte array to a string message
+    string msg = System.Text.Encoding.UTF8.GetString(message);
+    
+    // Log the raw message for debugging
+    Debug.Log("Received raw message: " + msg);
+
+    // Parse the JSON string into the BeamIndexData object
+    BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
+
+    // Log the parsed beamIndex for debugging
+    Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
+
+    // Find the BeamIndexMapping component in the scene
+    BeamIndexMapping beamIndexMapping = FindObjectOfType<BeamIndexMapping>();
+    if (beamIndexMapping != null)
+    {
+        // Update the beam index using the parsed data
+        beamIndexMapping.MoveRayToBeamIndex(beamData.beamIndex);
+    }
+    else
+    {
+        // If the component isn't found, log an error message
+        Debug.LogError("BeamIndexMapping component not found in the scene.");
+    }
+}
+
+
+
+
+
 
         private void StoreMessage(string eventMsg)
         {

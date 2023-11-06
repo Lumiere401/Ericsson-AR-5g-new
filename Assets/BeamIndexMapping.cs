@@ -4,105 +4,71 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
+
 public class BeamIndexMapping : MonoBehaviour
 {
 
-    int numCol = 34;
+    int numCol = 36;
     int numRows = 8;
     float minDegHorizontal = -60;
     float minDegVertical = -30;
     float degreeRangeHorizontal = 120;
     float degreeRangeVertical = 60;
-    [SerializeField] float currentCol = 0;
-    [SerializeField] float currentRow = 0;
     [SerializeField] private float degreeHorizontal = 0f;
     [SerializeField] private float degreeVertical = 0f;
-    public int beamIndex = 37;
+    int beamIndex;
+
+    
+
 
     public bool move;
 
-
-    private void Awake()
+        public void MoveRayToBeamIndex(int newBeamIndex)
     {
-        transform.rotation = Quaternion.Euler(0, 90, 0);
-    }
+        beamIndex = newBeamIndex;
+        float degreeIncreaseHorizontal = degreeRangeHorizontal / numCol;
+        float degreeIncreaseVertical = degreeRangeVertical / numRows;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        move = true;
+        int currentCol;
+        int currentRow;
 
-        StartCoroutine(MoveRayEverySecond());
-
-
-    }
-
-
-    IEnumerator MoveRayEverySecond()
-    {
-        if (move)
+        // Calculate column and row based on beam index
+        if (beamIndex >= 25 && beamIndex <= 312)
         {
-
-
-            for (beamIndex = 37; beamIndex <= 344; beamIndex++)
-            {
-
-                if (beamIndex > 172 && beamIndex < 209) continue;
-                MoveRay(beamIndex);
-                yield return new WaitForSecondsRealtime(1);
-                // yield return new WaitForFixedUpdate();
-            }
-
-
+            currentCol = (beamIndex - 25) % numCol;
+            currentRow = Mathf.FloorToInt((beamIndex - 25) / (float)numCol);
         }
-        move = false; // Set move to false once coroutine completes
-
-
-    }
-
-
-
-    void MoveRay(int beamIndex)
-    {
-
-        float degreeIncreaseHorizontal = degreeRangeHorizontal / (float)numCol;
-        float degreeIncreaseVertical = degreeRangeVertical / (float)numRows;
-
-
-
-        if (beamIndex >= 37 && beamIndex <= 172)
+        // else if (beamIndex >= 209 && beamIndex <= 344)
+        // {
+        //     currentCol = (beamIndex - 208 - 1) % numCol;
+        //     currentRow = Mathf.FloorToInt((beamIndex - 208 - 1) / (float)numCol) + 4;
+        // }
+        else
         {
-            currentCol = (beamIndex - 36 - 1) % numCol;
-            currentRow = (int)Mathf.Floor((beamIndex - 36 - 1) / (float)numCol);
-
+            Debug.LogError("Invalid beam index");
+            return;
         }
 
-        if (beamIndex >= 209 && beamIndex <= 344)
-        {
-            currentCol = (beamIndex - 208 - 1) % numCol;
-            currentRow = (int)Mathf.Floor((beamIndex - 208 - 1) / (float)numCol) + 4;
-
-        }
-
+        // Calculate horizontal and vertical degrees
         degreeHorizontal = minDegHorizontal + currentCol * degreeIncreaseHorizontal;
         degreeVertical = minDegVertical + currentRow * degreeIncreaseVertical;
 
-
-
-
+        // Calculate direction vector
         Vector3 direction = Quaternion.Euler(degreeVertical, degreeHorizontal, 0) * Vector3.forward;
-        Quaternion worldRotation = transform.rotation;
-        direction = worldRotation * direction; // Convert the direction to world space
 
+        // Set beam position and direction
+        transform.rotation = Quaternion.LookRotation(direction);
 
+        // Optionally, visualize the beam with a LineRenderer or other component
+        DrawBeam(direction);
+    }
 
-
+    // Method to visualize the beam
+    private void DrawBeam(Vector3 direction)
+    {
         // Create a new GameObject to represent the beam
         GameObject beam = new GameObject("Beam" + beamIndex);
         beam.transform.position = transform.position;
-
-        // Debug the cube's forward vector
-        //  Debug.DrawRay(this.transform.position, transform.forward, Color.green, 100000f, false);
 
         // Attach a LineRenderer to visualize the beam
         LineRenderer lineRenderer = beam.AddComponent<LineRenderer>();
@@ -110,13 +76,109 @@ public class BeamIndexMapping : MonoBehaviour
         lineRenderer.endWidth = 0.1f;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, beam.transform.position);
-        lineRenderer.SetPosition(1, beam.transform.position + direction * 10);
+        lineRenderer.SetPosition(1, beam.transform.position + direction * 10); // Adjust the length as needed
         beam.transform.rotation = Quaternion.LookRotation(direction);
 
-
-
+        // Destroy the previous beam GameObject to only show the current one
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+        beam.transform.parent = transform;
     }
 }
+
+
+    // Start is called before the first frame update
+//     void Start()
+//     {
+//         move = true;
+
+//         StartCoroutine(MoveRayEverySecond());
+
+
+//     }
+
+
+//     IEnumerator MoveRayEverySecond()
+//     {
+//         if (move)
+//         {
+
+
+//             for (beamIndex = 37; beamIndex <= 344; beamIndex++)
+//             {
+
+//                 if (beamIndex > 172 && beamIndex < 209) continue;
+//                 MoveRay(beamIndex);
+//                 yield return new WaitForSecondsRealtime(1);
+//                 // yield return new WaitForFixedUpdate();
+//             }
+
+
+//         }
+//         move = false; // Set move to false once coroutine completes
+
+
+//     }
+
+
+
+//     void MoveRay(int beamIndex)
+//     {
+
+//         float degreeIncreaseHorizontal = degreeRangeHorizontal / (float)numCol;
+//         float degreeIncreaseVertical = degreeRangeVertical / (float)numRows;
+
+
+
+//         if (beamIndex >= 37 && beamIndex <= 172)
+//         {
+//             currentCol = (beamIndex - 36 - 1) % numCol;
+//             currentRow = (int)Mathf.Floor((beamIndex - 36 - 1) / (float)numCol);
+
+//         }
+
+//         if (beamIndex >= 209 && beamIndex <= 344)
+//         {
+//             currentCol = (beamIndex - 208 - 1) % numCol;
+//             currentRow = (int)Mathf.Floor((beamIndex - 208 - 1) / (float)numCol) + 4;
+
+//         }
+
+//         degreeHorizontal = minDegHorizontal + currentCol * degreeIncreaseHorizontal;
+//         degreeVertical = minDegVertical + currentRow * degreeIncreaseVertical;
+
+
+
+
+//         Vector3 direction = Quaternion.Euler(degreeVertical, degreeHorizontal, 0) * Vector3.forward;
+//         Quaternion worldRotation = transform.rotation;
+//         direction = worldRotation * direction; // Convert the direction to world space
+
+
+
+
+//         // Create a new GameObject to represent the beam
+//         GameObject beam = new GameObject("Beam" + beamIndex);
+//         beam.transform.position = transform.position;
+
+//         // Debug the cube's forward vector
+//         //  Debug.DrawRay(this.transform.position, transform.forward, Color.green, 100000f, false);
+
+//         // Attach a LineRenderer to visualize the beam
+//         LineRenderer lineRenderer = beam.AddComponent<LineRenderer>();
+//         lineRenderer.startWidth = 0.1f;
+//         lineRenderer.endWidth = 0.1f;
+//         lineRenderer.positionCount = 2;
+//         lineRenderer.SetPosition(0, beam.transform.position);
+//         lineRenderer.SetPosition(1, beam.transform.position + direction * 10);
+//         beam.transform.rotation = Quaternion.LookRotation(direction);
+
+
+
+//     }
+// }
 
 
 
