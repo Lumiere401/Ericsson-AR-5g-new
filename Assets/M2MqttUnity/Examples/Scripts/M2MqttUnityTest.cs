@@ -77,8 +77,11 @@ namespace M2MqttUnity.Examples
 
         private List<string> eventMessages = new List<string>();
         private Queue<BeamIndexData> beams;
+        private Queue<BeamIndexData> beamsFullList;
         private BeamIndexData last_msg;
         private bool updateUI = false;
+
+        bool coroutineRunning = false;
 
         protected override void Awake()
         {
@@ -113,6 +116,7 @@ namespace M2MqttUnity.Examples
                             BeamIndexData data = JsonUtility.FromJson<BeamIndexData>(line);
                             beams.Enqueue(data);
                         }
+                        beamsFullList = new Queue<BeamIndexData>(beams);
                     }
                 }
                 else
@@ -180,21 +184,41 @@ namespace M2MqttUnity.Examples
 
         protected IEnumerator PublishBeamIndexMessages()
         {
-            if (last_msg == null)
+            while(true)
             {
-                last_msg = beams.Dequeue();
-            }
-            BeamIndexData msg = beams.Dequeue();
-            // calculate the delay based on the message timestamp
-            TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
+                if (client == null)
+                {
+                    Debug.Log("Client disappeared");
+                    break;
+                }
+                coroutineRunning = true;
+                float slowdownMultiplier = 50f; //Right now it's very fast
+                if (last_msg == null)
+                {
+                    last_msg = beams.Dequeue();
+                }
+                BeamIndexData msg = beams.Dequeue();
+                // calculate the delay based on the message timestamp
+                TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
+                Debug.Log("DELAY: " + delay);
 
-            if (delay.Seconds > 0)
-            {
-                yield return new WaitForSeconds(delay.Seconds);
+                /*if (delay.Seconds > 0)
+                {*/
+                yield return new WaitForSecondsRealtime(delay.Seconds * slowdownMultiplier);
+                /*}*/ 
+
+                last_msg = msg;
+                // publish the message to an mqtt topic
+                TestPublish(msg);
+
+                if (beams.Count <= 1)
+                {
+                    //Debug.Log("Breaking publishing loop");
+                    //break;
+                    beams = new Queue<BeamIndexData>(beamsFullList);
+                }
             }
-            last_msg = msg;
-            // publish the message to an mqtt topic
-            TestPublish(msg);
+            coroutineRunning = false;
         }
 
         protected override void OnConnecting()
@@ -374,19 +398,19 @@ protected override void DecodeMessage(string topic, byte[] message)
         protected override void Update()
         {
             base.Update(); // call ProcessMqttEvents()
-            if (client != null && beams.Count > 0)
+            if (client != null && beams.Count > 0 && !coroutineRunning)
             {
                 StartCoroutine(PublishBeamIndexMessages());
             }
           
-            if (eventMessages.Count > 0)
+            /*if (eventMessages.Count > 0)
             {
                 foreach (string msg in eventMessages)
                 {
                     ProcessMessage(msg);
                 }
                 eventMessages.Clear();
-            }
+            }*/
             if (updateUI)
             {
                 UpdateUI();

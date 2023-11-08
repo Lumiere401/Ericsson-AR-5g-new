@@ -37,9 +37,10 @@ public class BeamIndexMapping : MonoBehaviour
         beam.transform.position = transform.position;
         
         lineRenderer = beam.AddComponent<LineRenderer>();
-        lineRenderer.startWidth = 0.1f;
-        lineRenderer.endWidth = 3f;
+        lineRenderer.startWidth = 0f;
+        lineRenderer.endWidth = 1f;
         lineRenderer.numCapVertices = 20;
+        lineRenderer.numCornerVertices = 5;
         lineRenderer.material = beamMaterial;
 
         // Initially disable the beam
@@ -71,7 +72,7 @@ public class BeamIndexMapping : MonoBehaviour
     {
         StopCoroutine(currentTransitionCoroutine);
     }
-        StartCoroutine(MoveRayToBeamIndexSmooth(newBeamIndex, 1f)); // 1 second transition
+        StartCoroutine(MoveRayToBeamIndexSmooth(newBeamIndex, 4f)); // 1 second transition
     }
 
         
