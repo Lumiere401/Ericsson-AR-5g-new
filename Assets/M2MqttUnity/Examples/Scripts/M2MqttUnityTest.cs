@@ -188,9 +188,9 @@ namespace M2MqttUnity.Examples
             // calculate the delay based on the message timestamp
             TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
 
-            if (delay.Seconds > 0)
+            if (delay.TotalSeconds > 0)
             {
-                yield return new WaitForSeconds(delay.Seconds);
+                yield return new WaitForSecondsRealtime((float)delay.TotalSeconds * 10.0f);
             }
             last_msg = msg;
             // publish the message to an mqtt topic

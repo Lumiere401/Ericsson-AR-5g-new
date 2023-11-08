@@ -5,12 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: d1c3109bdb54ad54c8a2b2838528e640
-  - enabled: 0
+  - enabled: 1
     path: Assets/Samples/Mixed Reality Toolkit Examples/2.8.3/Experimental - SceneUnderstanding/Scenes/SceneUnderstandingExample.unity
     guid: d42a352dc9a8c4d4990a924687759199
   m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 3c945fcdb5cbccc499255d6f56e095df, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: bfbe46f0869b04a408a9e3d5a8ad121b, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 98c1c364749b1ce45a77fe1f8cbea5a5, type: 2}
