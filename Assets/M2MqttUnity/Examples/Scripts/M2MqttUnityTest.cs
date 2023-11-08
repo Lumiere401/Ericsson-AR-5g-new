@@ -77,6 +77,7 @@ namespace M2MqttUnity.Examples
 
         private List<string> eventMessages = new List<string>();
         private Queue<BeamIndexData> beams;
+        private Queue<BeamIndexData> beamsFullList;
         private BeamIndexData last_msg;
         private bool updateUI = false;
 
@@ -113,6 +114,7 @@ namespace M2MqttUnity.Examples
                             BeamIndexData data = JsonUtility.FromJson<BeamIndexData>(line);
                             beams.Enqueue(data);
                         }
+                        beamsFullList = new Queue<BeamIndexData>(beams);
                     }
                 }
                 else
@@ -196,6 +198,7 @@ namespace M2MqttUnity.Examples
             // publish the message to an mqtt topic
             TestPublish(msg);
         }
+
 
         protected override void OnConnecting()
         {
@@ -283,7 +286,6 @@ namespace M2MqttUnity.Examples
             updateUI = false;
         }
 
-
         // protected override void DecodeMessage(string topic, byte[] message)
         // {
         //     string msg = System.Text.Encoding.UTF8.GetString(message);
@@ -299,33 +301,62 @@ namespace M2MqttUnity.Examples
         //     }
         // }
 
-        protected override void DecodeMessage(string topic, byte[] message)
-{
-    // Convert the byte array to a string message
-    string msg = System.Text.Encoding.UTF8.GetString(message);
+//         protected override void DecodeMessage(string topic, byte[] message)
+// {
+//     // Convert the byte array to a string message
+//     string msg = System.Text.Encoding.UTF8.GetString(message);
     
-    // Log the raw message for debugging
-    Debug.Log("Received raw message: " + msg);
+//     // Log the raw message for debugging
+//     Debug.Log("Received raw message: " + msg);
 
-    // Parse the JSON string into the BeamIndexData object
-    BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
+//     // Parse the JSON string into the BeamIndexData object
+//     BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
 
-    // Log the parsed beamIndex for debugging
-    Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
+//     // Log the parsed beamIndex for debugging
+//     Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
 
-    // Find the BeamIndexMapping component in the scene
-    BeamIndexMapping beamIndexMapping = FindObjectOfType<BeamIndexMapping>();
-    if (beamIndexMapping != null)
-    {
-        // Update the beam index using the parsed data
-        beamIndexMapping.MoveRayToBeamIndex(beamData.beamIndex);
-    }
-    else
-    {
-        // If the component isn't found, log an error message
-        Debug.LogError("BeamIndexMapping component not found in the scene.");
-    }
-}
+//     // Find the BeamIndexMapping component in the scene
+//     BeamIndexMapping beamIndexMapping = FindObjectOfType<BeamIndexMapping>();
+//     if (beamIndexMapping != null)
+//     {
+//         // Update the beam index using the parsed data
+//         beamIndexMapping.MoveRayToBeamIndex(beamData.beamIndex);
+//     }
+//     else
+//     {
+//         // If the component isn't found, log an error message
+//         Debug.LogError("BeamIndexMapping component not found in the scene.");
+//     }
+// }
+
+protected override void DecodeMessage(string topic, byte[] message)
+        {
+                        // Convert the byte array to a string message
+                string msg = System.Text.Encoding.UTF8.GetString(message);
+                
+                // Log the raw message for debugging
+                Debug.Log("Received raw message: " + msg);
+
+                // Parse the JSON string into the BeamIndexData object
+                BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
+
+                // Log the parsed beamIndex for debugging
+                Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
+
+
+            // Find the BeamIndexMapping component in the scene
+            BeamIndexMapping beamIndexMapping = FindObjectOfType<BeamIndexMapping>();
+            if (beamIndexMapping != null)
+            {
+                // Start smooth transition to the new beam index
+                beamIndexMapping.StartSmoothTransition(beamData.beamIndex);
+            }
+            else
+            {
+                // If the component isn't found, log an error message
+                Debug.LogError("BeamIndexMapping component not found in the scene.");
+            }
+        }
 
 
 
@@ -342,6 +373,7 @@ namespace M2MqttUnity.Examples
             AddUiMessage("Received: " + msg);
         }
 
+       
         protected override void Update()
         {
             base.Update(); // call ProcessMqttEvents()
@@ -349,14 +381,15 @@ namespace M2MqttUnity.Examples
             {
                 StartCoroutine(PublishBeamIndexMessages());
             }
-            if (eventMessages.Count > 0)
+          
+            /*if (eventMessages.Count > 0)
             {
                 foreach (string msg in eventMessages)
                 {
                     ProcessMessage(msg);
                 }
                 eventMessages.Clear();
-            }
+            }*/
             if (updateUI)
             {
                 UpdateUI();
