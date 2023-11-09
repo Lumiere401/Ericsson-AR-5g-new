@@ -192,7 +192,7 @@ namespace M2MqttUnity.Examples
 
             if (delay.TotalSeconds > 0)
             {
-                yield return new WaitForSecondsRealtime((float)delay.TotalSeconds * 10.0f);
+                yield return new WaitForSecondsRealtime((float)delay.TotalSeconds * speed);
             }
             last_msg = msg;
             // publish the message to an mqtt topic
