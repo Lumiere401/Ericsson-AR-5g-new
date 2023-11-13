@@ -1433,6 +1433,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1925323697}
   - component: {fileID: 1925323696}
+  - component: {fileID: 1925323698}
   m_Layer: 0
   m_Name: MqttManager
   m_TagString: Untagged
@@ -1447,7 +1448,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1925323695}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbaa80705124f9e439d56ca6d5e6db69, type: 3}
   m_Name: 
@@ -1472,7 +1473,7 @@ MonoBehaviour:
   disconnectButton: {fileID: 0}
   testPublishButton: {fileID: 0}
   clearButton: {fileID: 0}
-  speed: 10
+  speed: 4
 --- !u!4 &1925323697
 Transform:
   m_ObjectHideFlags: 0
@@ -1487,6 +1488,39 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1925323698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925323695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d78147ccf30393142ba3cea400caba47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  brokerAddress: 129.192.82.202
+  brokerPort: 1883
+  isEncrypted: 0
+  connectionDelay: 500
+  timeoutOnConnection: 30000
+  autoConnect: 1
+  mqttUserName: idt220503
+  mqttPassword: idt220503
+  autoTest: 1
+  topicSub: EricssonONE/EnergyAware/edallam/sensors/power/p1meter/metrics
+  LocalTesting: 1
+  jsonFile: {fileID: 4900000, guid: 09c8f3f02afee87498991601b92317c2, type: 3}
+  consoleInputField: {fileID: 61294434}
+  encryptedToggle: {fileID: 0}
+  addressInputField: {fileID: 0}
+  portInputField: {fileID: 0}
+  connectButton: {fileID: 0}
+  disconnectButton: {fileID: 0}
+  testPublishButton: {fileID: 0}
+  clearButton: {fileID: 0}
+  speed: 0.05
 --- !u!1 &2023270414
 GameObject:
   m_ObjectHideFlags: 0
