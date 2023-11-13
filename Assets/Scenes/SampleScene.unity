@@ -381,6 +381,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   degreeHorizontal: 0
   degreeVertical: 0
+  oldDegreeHorizontal: 0
+  oldDegreeVertical: 0
   beamMaterial: {fileID: 0}
   move: 0
 --- !u!1 &485480683
@@ -734,7 +736,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   degreeHorizontal: 0
   degreeVertical: 0
-  beamMaterial: {fileID: 0}
+  oldDegreeHorizontal: 0
+  oldDegreeVertical: 0
+  beamMaterial: {fileID: 2100000, guid: ee0bfcf0971bf2c4abb3a989b5355b9e, type: 2}
   move: 0
 --- !u!1001 &1362892039
 PrefabInstance:
@@ -790,7 +794,7 @@ PrefabInstance:
     - target: {fileID: -6982009193975205628, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_Materials.Array.data[5]
       value: 
-      objectReference: {fileID: 2100000, guid: 2e96c424a7f072442865af174858840f, type: 2}
+      objectReference: {fileID: 8556262120643298411, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
     - target: {fileID: 919132149155446097, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_Name
       value: Ericsson Lobby
@@ -798,7 +802,7 @@ PrefabInstance:
     - target: {fileID: 2991394477792057622, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 2e96c424a7f072442865af174858840f, type: 2}
+      objectReference: {fileID: 8556262120643298411, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e7a7b0446419ce7489e6793721c2ba7a, type: 3}
 --- !u!1 &1395156560
@@ -1472,7 +1476,7 @@ MonoBehaviour:
   disconnectButton: {fileID: 0}
   testPublishButton: {fileID: 0}
   clearButton: {fileID: 0}
-  speed: 10
+  speed: 3
 --- !u!4 &1925323697
 Transform:
   m_ObjectHideFlags: 0
@@ -1854,6 +1858,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   degreeHorizontal: 0
   degreeVertical: 0
+  oldDegreeHorizontal: 0
+  oldDegreeVertical: 0
   beamMaterial: {fileID: 0}
   move: 0
 --- !u!33 &5699127562898269241

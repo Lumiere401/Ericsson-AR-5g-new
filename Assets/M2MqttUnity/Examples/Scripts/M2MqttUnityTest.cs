@@ -73,13 +73,16 @@ namespace M2MqttUnity.Examples
         public Button disconnectButton;
         public Button testPublishButton;
         public Button clearButton;
-        public float speed;
+        public float slowdownMultiplier;
 
         private List<string> eventMessages = new List<string>();
         private Queue<BeamIndexData> beams;
-        private Queue<BeamIndexData> beamsFullList;
         private BeamIndexData last_msg;
         private bool updateUI = false;
+        private Queue<BeamIndexData> beamsFullList;
+        bool coroutineRunning = false;
+
+
 
         protected override void Awake()
         {
@@ -132,7 +135,7 @@ namespace M2MqttUnity.Examples
         private void TestPublish(BeamIndexData msg)
         {
             client.Publish("beam/testing", System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg)), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
-            Debug.Log("Test message published");
+            //Debug.Log("Test message published");
             //AddUiMessage("Test message published.");
         }
 
@@ -179,24 +182,103 @@ namespace M2MqttUnity.Examples
                 Debug.Log(msg);
             }
         }
+        // protected IEnumerator PublishBeamIndexMessages()
+        // {
+            
+        //     while(true)
+        //     {
+                
+        //         if (client == null)
+        //         {
+        //             Debug.Log("Client disappeared");
+        //             break;
+        //         }
+        //         coroutineRunning = true;
+        //         //float slowdownMultiplier = 50f; //Right now it's very fast
+        //         float minimumDelay = 0.05f; 
 
-        protected IEnumerator PublishBeamIndexMessages()
+        //         if (last_msg == null)
+        //         {
+        //             last_msg = beams.Dequeue();
+        //         }
+        //         BeamIndexData msg = beams.Dequeue();
+        //         // calculate the delay based on the message timestamp
+        //         TimeSpan calculatedDelay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
+        //         //Debug.Log("DELAY: " + delay);
+        //         float delayInSeconds = Mathf.Max(calculatedDelay.Seconds + calculatedDelay.Milliseconds / 1000.0f, minimumDelay);
+        //       // Debug.Log("Calculated Delay: " + calculatedDelay + " | Actual Delay: " + delayInSeconds);
+        //        yield return new WaitForSeconds(delayInSeconds);
+
+                 
+
+            
+
+            
+        //         /*if (delay.Seconds > 0)
+        //         {*/
+        //         //yield return new WaitForSecondsRealtime(delay.Seconds * slowdownMultiplier);
+                
+
+        //         /*}*/ 
+
+        //         last_msg = msg;
+        //         // publish the message to an mqtt topic
+        //         TestPublish(msg);
+
+        //         if (beams.Count <= 1)
+        //         {
+        //             //Debug.Log("Breaking publishing loop");
+        //             //break;
+        //             beams = new Queue<BeamIndexData>(beamsFullList);
+        //         }
+            
+            
+        //     coroutineRunning = false;
+        // }
+        // }
+
+             protected IEnumerator PublishBeamIndexMessages()
         {
-            if (last_msg == null)
+            
+            while(true)
             {
-                last_msg = beams.Dequeue();
-            }
-            BeamIndexData msg = beams.Dequeue();
-            // calculate the delay based on the message timestamp
-            TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
+                
+                if (client == null)
+                {
+                    Debug.Log("Client disappeared");
+                    break;
+                }
+                coroutineRunning = true;
+                //float slowdownMultiplier = 50f; //Right now it's very fast
+                if (last_msg == null)
+                {
+                    last_msg = beams.Dequeue();
+                }
+                BeamIndexData msg = beams.Dequeue();
+                // calculate the delay based on the message timestamp
+                TimeSpan delay = DateTime.Parse(msg.timestamp) - DateTime.Parse(last_msg.timestamp);
+               // Debug.Log("DELAY: " + delay);
 
-            if (delay.TotalSeconds > 0)
-            {
-                yield return new WaitForSecondsRealtime((float)delay.TotalSeconds * speed);
-            }
-            last_msg = msg;
-            // publish the message to an mqtt topic
-            TestPublish(msg);
+            
+                /*if (delay.Seconds > 0)
+                {*/
+                yield return new WaitForSecondsRealtime((float)delay.TotalSeconds * slowdownMultiplier);
+                /*}*/ 
+
+                last_msg = msg;
+                // publish the message to an mqtt topic
+                TestPublish(msg);
+
+                if (beams.Count <= 1)
+                {
+                    //Debug.Log("Breaking publishing loop");
+                    //break;
+                    beams = new Queue<BeamIndexData>(beamsFullList);
+                }
+            
+            
+            coroutineRunning = false;
+        }
         }
 
 
@@ -329,23 +411,23 @@ namespace M2MqttUnity.Examples
 //     }
 // }
 
+
 protected override void DecodeMessage(string topic, byte[] message)
         {
                         // Convert the byte array to a string message
                 string msg = System.Text.Encoding.UTF8.GetString(message);
                 
                 // Log the raw message for debugging
-                Debug.Log("Received raw message: " + msg);
-
+               // Debug.Log("Received raw message: " + msg);
                 // Parse the JSON string into the BeamIndexData object
                 BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
-
                 // Log the parsed beamIndex for debugging
-                Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
-
-
+              // Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
             // Find the BeamIndexMapping component in the scene
             BeamIndexMapping beamIndexMapping = FindObjectOfType<BeamIndexMapping>();
+            
+            //Debug.Log($"Message received at: {DateTime.Now.ToLongTimeString()}");
+
             if (beamIndexMapping != null)
             {
                 // Start smooth transition to the new beam index
@@ -357,11 +439,6 @@ protected override void DecodeMessage(string topic, byte[] message)
                 Debug.LogError("BeamIndexMapping component not found in the scene.");
             }
         }
-
-
-
-
-
 
         private void StoreMessage(string eventMsg)
         {
@@ -377,19 +454,19 @@ protected override void DecodeMessage(string topic, byte[] message)
         protected override void Update()
         {
             base.Update(); // call ProcessMqttEvents()
-            if (client != null && beams.Count > 0)
+            if (client != null && beams.Count > 0 && !coroutineRunning)
             {
                 StartCoroutine(PublishBeamIndexMessages());
             }
           
-            /*if (eventMessages.Count > 0)
+            if (eventMessages.Count > 0)
             {
                 foreach (string msg in eventMessages)
                 {
                     ProcessMessage(msg);
                 }
                 eventMessages.Clear();
-            }*/
+            }
             if (updateUI)
             {
                 UpdateUI();

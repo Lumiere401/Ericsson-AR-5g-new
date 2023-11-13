@@ -16,6 +16,8 @@ public class BeamIndexMapping : MonoBehaviour
     float degreeRangeVertical = 60;
     [SerializeField] private float degreeHorizontal = 0f;
     [SerializeField] private float degreeVertical = 0f;
+    [SerializeField] private float oldDegreeHorizontal = 0f;
+    [SerializeField] private float oldDegreeVertical = 0f;
     [SerializeField] private Material beamMaterial; 
     public bool move;
     private Coroutine currentTransitionCoroutine;
@@ -24,6 +26,12 @@ public class BeamIndexMapping : MonoBehaviour
     private LineRenderer lineRenderer; //  the reference to tge LineRenderer
 
     private int beamIndex;
+    private bool isTransitionActive = false;
+
+    // Queue to store pending beam indices
+    private Queue<int> beamIndexQueue = new Queue<int>();
+
+
 
     void Start()
     {
@@ -47,43 +55,54 @@ public class BeamIndexMapping : MonoBehaviour
         beam.SetActive(false);
     }
 
-
-    //     void Start()
-    // {
-    //     move = true;
-    //     StartCoroutine(MoveRayEverySecond());
-    // }
-
-    // IEnumerator MoveRayEverySecond()
-    // {
-    //     if(move)
-    //     {
-    //         for (beamIndex = 25; beamIndex <= 312; beamIndex++)
-    //         {
-    //             MoveRayToBeamIndex(beamIndex);
-    //             yield return new WaitForFixedUpdate();
-    //         }
-    //     }
-    // }
-
-    public void StartSmoothTransition(int newBeamIndex)
+public void StartSmoothTransition(int newBeamIndex)
+{
+    if (!isTransitionActive) // Check if a transition is not already active
     {
-        if (currentTransitionCoroutine != null)
+        // Start the transition immediately
+        BeginTransition(newBeamIndex);
+    }
+    else
+    {
+        // Queue the new beam index for later processing
+        beamIndexQueue.Enqueue(newBeamIndex);
+       // Debug.Log($"Transition is currently active. Queued new transition to index {newBeamIndex}.");
+    }
+}
+
+private void BeginTransition(int newBeamIndex)
+{
+    isTransitionActive = true; // Mark the transition as active
+    if (currentTransitionCoroutine != null)
     {
         StopCoroutine(currentTransitionCoroutine);
     }
-        StartCoroutine(MoveRayToBeamIndexSmooth(newBeamIndex, 4f)); // 1 second transition
-    }
+    currentTransitionCoroutine = StartCoroutine(MoveRayToBeamIndexSmooth(newBeamIndex, 0.15f)); 
+
+
+}
 
         
  private IEnumerator MoveRayToBeamIndexSmooth(int newBeamIndex, float transitionTime)
     
     {
-        Vector3 startingDirection = transform.rotation * Quaternion.Euler(degreeVertical, degreeHorizontal, 0) * Vector3.forward;
+         isTransitionActive = true; // Transition starts
 
-        beamIndex = newBeamIndex;
         float degreeIncreaseHorizontal = degreeRangeHorizontal / numCol;
         float degreeIncreaseVertical = degreeRangeVertical / numRows;
+
+        int oldCol = (beamIndex - 25) % numCol;
+        int oldRow = Mathf.FloorToInt((beamIndex - 25) / (float)numCol);
+
+
+          // Calculate the horizontal and vertical angels
+        oldDegreeHorizontal = minDegHorizontal + oldCol * degreeIncreaseHorizontal;
+        oldDegreeVertical = minDegVertical + oldRow * degreeIncreaseVertical;
+
+        Vector3 startingDirection = transform.rotation * Quaternion.Euler(oldDegreeVertical, oldDegreeHorizontal, 0) * Vector3.forward;
+
+        beamIndex = newBeamIndex;
+      
 
         int currentCol = (beamIndex - 25) % numCol;
         int currentRow = Mathf.FloorToInt((beamIndex - 25) / (float)numCol);
@@ -95,22 +114,66 @@ public class BeamIndexMapping : MonoBehaviour
         // Calculate the target direction
         Vector3 targetDirection = transform.rotation * Quaternion.Euler(degreeVertical, degreeHorizontal, 0) * Vector3.forward;
 
+         //float startTime = Time.time;
+        //Debug.Log($"Starting transition at: {startTime}");
+
+      //  Debug.Log($"Beam Index: {beamIndex}, Horizontal Angle: {degreeHorizontal}, Vertical Angle: {degreeVertical}");
+
+
         float elapsedTime = 0;
         while (elapsedTime < transitionTime)
         {
+           // Debug.Log("in the while looop");
             elapsedTime += Time.deltaTime;
             float lerpFactor = elapsedTime / transitionTime;
+           // lerpFactor = Mathf.Sin(lerpFactor * Mathf.PI * 0.5f); // Ease out
+
 
             // Smoothly interpolate the beam's direction
             Vector3 smoothedDirection = Vector3.Slerp(startingDirection, targetDirection, lerpFactor);
+       
 
             // Apply the smoothed direction to draw the beam
             DrawBeam(smoothedDirection);
 
-            yield return null;
+           yield return null;
+      
+
         }
+        isTransitionActive = false; // Transition ends
+
+            //  float endTime = Time.time;
+   // Debug.Log($"Ending transition at: {endTime}");
+    //Debug.Log($"Total transition time: {endTime - startTime} seconds");
+
+
+  
 
     DrawBeam(targetDirection);
+
+          if (beamIndexQueue.Count > 0)
+    {
+        // Dequeue the next index and begin the transition
+        BeginTransition(beamIndexQueue.Dequeue());
+    }
+
+//     if (beamIndexQueue.Count > 0)
+// {
+//     int nextIndex = beamIndexQueue.Dequeue();
+//     // Check if the next index is the same as the current one before transitioning
+//     if (nextIndex != beamIndex)
+//     {
+//         BeginTransition(nextIndex);
+//     }
+//     else if (beamIndexQueue.Count > 0)
+//     {
+//         // If the next index is the same, check the queue for a different index
+//         BeginTransition(beamIndexQueue.Dequeue());
+//     }
+//}
+
+
+
 }
     
     private void DrawBeam(Vector3 direction)
