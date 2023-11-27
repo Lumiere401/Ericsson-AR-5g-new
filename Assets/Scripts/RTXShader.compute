@@ -17,6 +17,8 @@ RWStructuredBuffer<float3> HitDataBuffer;   // Buffer to write output data
 // Ray-triangle intersection
 bool IntersectRayTriangle(float3 rayOrigin, float3 rayDir, float3 v0, float3 v1, float3 v2, out float3 hitPos)
 {
+    hitPos = float3(0, 0, 0);
+
     // Implementation based on the Moller-Trumbore algorithm
     float3 edge1, edge2, h, s, q;
     float a, f, u, v;
@@ -64,11 +66,11 @@ void RTXMain(uint3 id : SV_DispatchThreadID)
 
         if (IntersectRayTriangle(rayOrigin, rayDirection, v0, v1, v2, hitPos))
         {
-            HitDataBuffer[id] = hitPos;
+            HitDataBuffer[id.x] = hitPos;
             return; // Assuming we only care about the first intersection
         }
     }
 
     // If no intersection was found
-    HitDataBuffer[id] = float3(-1, -1, -1);
+    HitDataBuffer[id.x] = float3(-1, -1, -1);
 }

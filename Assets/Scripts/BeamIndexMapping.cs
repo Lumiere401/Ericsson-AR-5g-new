@@ -24,7 +24,7 @@ public class BeamIndexMapping : MonoBehaviour
 
     private GameObject beam; //the beam GameObject
     private LineRenderer lineRenderer; //  the reference to tge LineRenderer
-
+    private RTXHandler handle;
     private int beamIndex;
     private bool isTransitionActive = false;
 
@@ -36,9 +36,34 @@ public class BeamIndexMapping : MonoBehaviour
     void Start()
     {
         CreateBeamGameObject(); 
+        handle = GameObject.Find("cone").GetComponent<RTXHandler>();
     }
 
-     private void CreateBeamGameObject()
+    private void Update()
+    {
+        // Create a ray from the specified position and direction
+        Ray ray = new Ray(transform.position, transform.forward);
+        Debug.Log("Shoot out: " + transform.position);
+        // Visualize the ray in the Scene view
+        Debug.DrawRay(transform.position, transform.forward * 20.0f, Color.red);
+
+        // Create a RaycastHit variable to store information about the hit
+        RaycastHit hit;
+
+        // Check if the ray hits any collider
+        if (Physics.Raycast(ray, out hit))
+        {
+            // The hit variable now contains information about the object hit
+            GameObject hitObject = hit.collider.gameObject;
+
+            // Do something with the hit object
+            Debug.Log("Hit Object: " + hitObject.name);
+        }
+
+        /*Vector3 nextRay = handle.getResult(transform.position, startingDirection);
+        Debug.Log("nextRay pos: " + nextRay);*/
+    }
+    private void CreateBeamGameObject()
     {
         beam = new GameObject("Beam");
         beam.transform.parent = transform;
@@ -57,6 +82,7 @@ public class BeamIndexMapping : MonoBehaviour
 
 public void StartSmoothTransition(int newBeamIndex)
 {
+    
     if (!isTransitionActive) // Check if a transition is not already active
     {
         // Start the transition immediately
@@ -114,10 +140,10 @@ private void BeginTransition(int newBeamIndex)
         // Calculate the target direction
         Vector3 targetDirection = transform.rotation * Quaternion.Euler(degreeVertical, degreeHorizontal, 0) * Vector3.forward;
 
-         //float startTime = Time.time;
+        //float startTime = Time.time;
         //Debug.Log($"Starting transition at: {startTime}");
 
-      //  Debug.Log($"Beam Index: {beamIndex}, Horizontal Angle: {degreeHorizontal}, Vertical Angle: {degreeVertical}");
+        //  Debug.Log($"Beam Index: {beamIndex}, Horizontal Angle: {degreeHorizontal}, Vertical Angle: {degreeVertical}");
 
 
         float elapsedTime = 0;
@@ -131,7 +157,6 @@ private void BeginTransition(int newBeamIndex)
 
             // Smoothly interpolate the beam's direction
             Vector3 smoothedDirection = Vector3.Slerp(startingDirection, targetDirection, lerpFactor);
-       
 
             // Apply the smoothed direction to draw the beam
             DrawBeam(smoothedDirection);

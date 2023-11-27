@@ -11,7 +11,7 @@ public class RTXHandler : MonoBehaviour
     private ComputeBuffer vertexBuffer;
     private ComputeBuffer indexBuffer;
     
-    private Vector3[] results;
+    private float[] results;
     private int kernelIndex;
     private Mesh mesh;
     private Vector3[] vertices;
@@ -22,7 +22,7 @@ public class RTXHandler : MonoBehaviour
         public Vector3 origin;
         public Vector3 direction;
     }
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,16 +30,16 @@ public class RTXHandler : MonoBehaviour
         kernelIndex = rayTraceShader.FindKernel("RTXMain");
 
         // Initialize buffer to store results
-        resultBuffer = new ComputeBuffer(1, Marshal.SizeOf(typeof(RayData))); // Assuming 2 Vector3s
+        resultBuffer = new ComputeBuffer(1, sizeof(float) * 3); // Assuming 1 Vector3s
         rayTraceShader.SetBuffer(0, "HitDataBuffer", resultBuffer);
-        
+
         // Get the mesh geometry
         mesh = GetComponent<MeshFilter>().mesh;
         vertices = mesh.vertices;
         indices = mesh.GetIndices(0);
         int vertexCount = vertices.Length;
         int indexCount = indices.Length;
-        
+
         // Initialize vertex and index buffers
         vertexBuffer = new ComputeBuffer(vertexCount, sizeof(float) * 3);
         vertexBuffer.SetData(vertices);
@@ -65,7 +65,7 @@ public class RTXHandler : MonoBehaviour
 
     }
 
-    public Vector3[] getResult(Vector3 origin, Vector3 direction)
+    public Vector3 getResult(Vector3 origin, Vector3 direction)
     {
         // If a prior buffer was sent
         rayInputBuffer?.Release();
@@ -87,9 +87,9 @@ public class RTXHandler : MonoBehaviour
         rayTraceShader.Dispatch(kernelIndex, 1, 1, 1);
 
         // Retrieve data
-        results = new Vector3[2];
+        results = new float[3];
         resultBuffer.GetData(results);
         
-        return results;
+        return new Vector3(results[0], results[1], results[2]);
     }
 }
