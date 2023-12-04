@@ -1,0 +1,79 @@
+[33mcommit 0565d6f0a41b774730df6b0513434bc84daaf2b1[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Merge: 41faa06 803b964
+Author: Venkata Satya Anurag <91436036+moonglory97@users.noreply.github.com>
+Date:   Mon Nov 13 14:24:50 2023 +0100
+
+    Merge branch 'master' of github.com:Lumiere401/Ericsson-AR-5g-new
+
+[33mcommit 803b96476038e88cc59facc30b2147a0fe3ab650[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Eliseu Amaro <mail@eliseuama.ro>
+Date:   Mon Nov 13 14:09:30 2023 +0100
+
+    [RTX] Lobby package with rtx compute shader implemented
+
+[33mcommit 41faa06501019af7b63dab5c1ec0048eb2112e18[m
+Author: Venkata Satya Anurag <91436036+moonglory97@users.noreply.github.com>
+Date:   Mon Nov 13 13:15:09 2023 +0100
+
+    fake mqtt
+
+[33mcommit 80c3312d428e037776e3baebf3891eef936a736b[m
+Author: Yas Yazdniyan <yazdaniyanyas@gmail.com>
+Date:   Mon Nov 13 13:08:11 2023 +0100
+
+    making the beam transition smooth
+
+[33mcommit ea2e8ab86104d60b70ad8bd3024fa23c342f2a96[m
+Author: Lumiere401 <48873067+Lumiere401@users.noreply.github.com>
+Date:   Thu Nov 9 01:00:03 2023 +0100
+
+    fix the publish speed adjustment
+
+[33mcommit 87810bcc10468623f95c1dc6d4890f50988780f8[m
+Merge: 76cc0fd 38d2b4b
+Author: Lumiere401 <48873067+Lumiere401@users.noreply.github.com>
+Date:   Thu Nov 9 00:58:44 2023 +0100
+
+    fix the publish speed adjustment
+
+[33mcommit 76cc0fd2803835489b2f18bedfe6837e16d5609a[m
+Author: Lumiere401 <48873067+Lumiere401@users.noreply.github.com>
+Date:   Thu Nov 9 00:53:26 2023 +0100
+
+    fix the publish speed adjustment
+
+[33mcommit 38d2b4b007a7675ba863bf7f7bc473bd6edcc6d3[m
+Author: Venkata Satya Anurag <91436036+moonglory97@users.noreply.github.com>
+Date:   Wed Nov 8 19:56:47 2023 +0100
+
+    Looping ray
+
+[33mcommit 9e0093add460cc6a80109ca139b3630409b8a36a[m
+Author: Yas Yazdniyan <yazdaniyanyas@gmail.com>
+Date:   Tue Nov 7 23:44:46 2023 +0100
+
+    made the beams shoot more central and made the transition more smooth and I made a ugly shader
+
+[33mcommit 8313d30a35f0b20828b7b58b86992b6b1f1da73c[m
+Author: Yas Yazdniyan <yazdaniyanyas@gmail.com>
+Date:   Mon Nov 6 16:00:39 2023 +0100
+
+    passing the parsed data to beam index mapping script and showing only one beam at a time
+
+[33mcommit 4262f4ca287104f155718a389b1b6342382b89c6[m
+Author: Venkata Satya Anurag <91436036+moonglory97@users.noreply.github.com>
+Date:   Sun Nov 5 18:58:40 2023 +0100
+
+    fix the local message publishing with coroutine
+
+[33mcommit 7f4baeadcb26b92d298001021b68ece40daf8e92[m
+Author: Venkata Satya Anurag <91436036+moonglory97@users.noreply.github.com>
+Date:   Wed Nov 1 18:54:48 2023 +0100
+
+    Add feature for local mqtt, problem exists
+
+[33mcommit d67bc0d6a35e44462817e5f92d43fff5976eddae[m
+Author: Venkata Satya Anurag <91436036+moonglory97@users.noreply.github.com>
+Date:   Wed Oct 25 19:54:00 2023 +0200
+
+    first commit after lfs

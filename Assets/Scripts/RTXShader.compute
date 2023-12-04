@@ -1,0 +1,76 @@
+#pragma kernel RTXMain
+
+struct RayData
+{
+    float3 origin;
+    float3 direction;
+};
+
+StructuredBuffer<RayData> RayDataBuffer;    // Input buffer
+StructuredBuffer<float3> Vertices;          // Geometry vertices
+StructuredBuffer<int> Indices;              // Geometry indices
+int vertexCount;
+int indexCount;
+
+RWStructuredBuffer<float3> HitDataBuffer;   // Buffer to write output data
+
+// Ray-triangle intersection
+bool IntersectRayTriangle(float3 rayOrigin, float3 rayDir, float3 v0, float3 v1, float3 v2, out float3 hitPos)
+{
+    hitPos = float3(0, 0, 0);
+
+    // Implementation based on the Moller-Trumbore algorithm
+    float3 edge1, edge2, h, s, q;
+    float a, f, u, v;
+    const float EPSILON = 0.0000001;
+    edge1 = v1 - v0;
+    edge2 = v2 - v0;
+    h = cross(rayDir, edge2);
+    a = dot(edge1, h);
+    if (a > -EPSILON && a < EPSILON)
+        return false;    // Ray is parallel to the triangle
+    f = 1.0 / a;
+    s = rayOrigin - v0;
+    u = f * dot(s, h);
+    if (u < 0.0 || u > 1.0)
+        return false;
+    q = cross(s, edge1);
+    v = f * dot(rayDir, q);
+    if (v < 0.0 || u + v > 1.0)
+        return false;
+    // Compute point of intersection
+    float t = f * dot(edge2, q);
+    if (t > EPSILON) // Ray intersection
+    {
+        hitPos = rayOrigin + rayDir * t;
+        return true;
+    }
+    else // No hit
+        return false;
+}
+
+[numthreads(8, 8, 1)]
+void RTXMain(uint3 id : SV_DispatchThreadID)
+{
+    RayData ray = RayDataBuffer[id.x];
+    float3 rayOrigin = ray.origin;
+    float3 rayDirection = ray.direction;
+    float3 hitPos;
+
+    // Loop through each triangle
+    for (int i = 0; i < indexCount; i += 3)
+    {
+        float3 v0 = Vertices[Indices[i]];
+        float3 v1 = Vertices[Indices[i + 1]];
+        float3 v2 = Vertices[Indices[i + 2]];
+
+        if (IntersectRayTriangle(rayOrigin, rayDirection, v0, v1, v2, hitPos))
+        {
+            HitDataBuffer[id.x] = hitPos;
+            return; // Assuming we only care about the first intersection
+        }
+    }
+
+    // If no intersection was found
+    HitDataBuffer[id.x] = float3(-1, -1, -1);
+}
