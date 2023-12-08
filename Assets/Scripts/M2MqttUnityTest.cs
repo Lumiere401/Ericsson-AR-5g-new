@@ -84,10 +84,10 @@ namespace M2MqttUnity.Examples
         {
             if (LocalTesting)
             {
-                this.topicSub = "beam/testing";
-                this.brokerAddress = "127.0.0.1";
-                this.mqttUserName = "student";
-                this.mqttPassword = "student";
+                this.topicSub = "EricssonONE/egarage/gnodeb/beamtracking";
+                this.brokerAddress = "129.192.82.202";
+                this.mqttUserName = "ldt220503";
+                this.mqttPassword = "ldt220503";
             }
             base.Awake(); // Call the base class's Awake method
                           // Additional initialization specific to ChildClass
@@ -114,6 +114,7 @@ namespace M2MqttUnity.Examples
                             beams.Enqueue(data);
                         }
                     }
+                    Debug.Log("beam data loaded");
                 }
                 else
                 {
@@ -129,7 +130,7 @@ namespace M2MqttUnity.Examples
 
         private void TestPublish(BeamIndexData msg)
         {
-            client.Publish("beam/testing", System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg)), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+            client.Publish(this.topicSub, System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg)), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
             Debug.Log("Test message published");
             //AddUiMessage("Test message published.");
         }
@@ -165,11 +166,13 @@ namespace M2MqttUnity.Examples
             }
         }
 
+
         public void AddUiMessage(string msg)
         {
             if (consoleInputField != null)
             {
                 consoleInputField.text += msg + "\n";
+
                 updateUI = true;
             }
             else
@@ -306,7 +309,7 @@ namespace M2MqttUnity.Examples
 
             // Log the raw message for debugging
             Debug.Log("Received raw message: " + msg);
-
+            SetUiMessage("Received raw message: " + msg);
             // Parse the JSON string into the BeamIndexData object
             BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
 
@@ -346,8 +349,7 @@ namespace M2MqttUnity.Examples
         protected override void Update()
         {
             base.Update(); // call ProcessMqttEvents()
-
-            if (client != null && beams.Count > 0)
+            if (LocalTesting && client != null && beams.Count > 0)
             {
                 StartCoroutine(PublishBeamIndexMessages());
             }
