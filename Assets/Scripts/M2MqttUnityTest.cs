@@ -62,11 +62,12 @@ namespace M2MqttUnity.Examples
         [Tooltip("Topic name that broker will subscribe")]
         public String topicSub = null;
         [Tooltip("If true, using the local data and publish on localhost")]
-        public bool LocalTesting = false;
+        public bool isLocalTesting = true;
         public TextAsset jsonFile; // Drag and drop your JSON file in the Unity Inspector.
         [Header("User Interface")]
         public InputField consoleInputField;
         public Toggle encryptedToggle;
+        public Toggle localTestingToggle;
         public InputField addressInputField;
         public InputField portInputField;
         public Button connectButton;
@@ -79,15 +80,19 @@ namespace M2MqttUnity.Examples
         private Queue<BeamIndexData> beams;
         private BeamIndexData last_msg;
         private bool updateUI = false;
+        private string DefaultUserName = "ldt220503";
+        private string DefaultPassword = "ldt220503";
+        private string DefaultTopic = "EricssonONE/egarage/gnodeb/beamtracking";
+        private string DefaultAddress = "129.192.82.202";
 
         protected override void Awake()
         {
-            if (LocalTesting)
+            if (isLocalTesting)
             {
-                this.topicSub = "EricssonONE/egarage/gnodeb/beamtracking";
-                this.brokerAddress = "129.192.82.202";
-                this.mqttUserName = "ldt220503";
-                this.mqttPassword = "ldt220503";
+                this.topicSub = DefaultTopic;
+                this.brokerAddress = DefaultAddress;
+                this.mqttUserName = DefaultUserName;
+                this.mqttPassword = DefaultPassword;
             }
             base.Awake(); // Call the base class's Awake method
                           // Additional initialization specific to ChildClass
@@ -97,42 +102,16 @@ namespace M2MqttUnity.Examples
         {
             SetUiMessage("Ready.");
             beams = new Queue<BeamIndexData>();
-            if (LocalTesting)
-            {
-                base.Start();
-                if (jsonFile != null)
-                {
-                    string jsonText = jsonFile.text;
-                    // You can now parse the JSON data using a JSON parser, e.g., JSONUtility or a third-party library like Newtonsoft.Json.
-                    // Example using JSONUtility:
-                    using (StringReader reader = new StringReader(jsonText))
-                    {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            BeamIndexData data = JsonUtility.FromJson<BeamIndexData>(line);
-                            beams.Enqueue(data);
-                        }
-                    }
-                    Debug.Log("beam data loaded");
-                }
-                else
-                {
-                    Debug.LogError("JSON file not found. Make sure to assign it in the Inspector.");
-                }
-            }
-            else
-            {
-                base.Start();
-            }
+            base.Start();
+            LoadBeamData();
             updateUI = true;
         }
 
-        private void TestPublish(BeamIndexData msg)
+        public void TestPublish()
         {
-            client.Publish(this.topicSub, System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg)), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+            client.Publish(this.topicSub, System.Text.Encoding.UTF8.GetBytes("Test message"), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
             Debug.Log("Test message published");
-            //AddUiMessage("Test message published.");
+            AddUiMessage("Test message published.");
         }
 
         public void SetBrokerAddress(string brokerAddress)
@@ -148,6 +127,17 @@ namespace M2MqttUnity.Examples
             if (portInputField && !updateUI)
             {
                 int.TryParse(brokerPort, out this.brokerPort);
+            }
+        }
+
+        public void SetLocalTesting(bool isLocalTesting)
+        {
+            this.isLocalTesting = isLocalTesting;
+            if (isLocalTesting == false)
+            {
+                // Everytime when uncheck the localtesting, reload the local beamindex data
+                beams.Clear();
+                LoadBeamData();
             }
         }
 
@@ -181,6 +171,31 @@ namespace M2MqttUnity.Examples
             }
         }
 
+        private void LoadBeamData()
+        {
+            // Local pre-record beamIndex data
+            if (jsonFile != null)
+            {
+                string jsonText = jsonFile.text;
+                // You can now parse the JSON data using a JSON parser, e.g., JSONUtility or a third-party library like Newtonsoft.Json.
+                // Example using JSONUtility:
+                using (StringReader reader = new StringReader(jsonText))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        BeamIndexData data = JsonUtility.FromJson<BeamIndexData>(line);
+                        beams.Enqueue(data);
+                    }
+                }
+                Debug.Log("beam data loaded");
+            }
+            else
+            {
+                Debug.LogError("JSON file not found. Make sure to assign it in the Inspector.");
+            }
+        }
+
         protected IEnumerator PublishBeamIndexMessages()
         {
             if (last_msg == null)
@@ -197,7 +212,10 @@ namespace M2MqttUnity.Examples
             }
             last_msg = msg;
             // publish the message to an mqtt topic
-            TestPublish(msg);
+            if (client != null)
+            {
+                client.Publish(this.topicSub, System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg)), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+            }
         }
 
         protected override void OnConnecting()
@@ -279,6 +297,11 @@ namespace M2MqttUnity.Examples
                 encryptedToggle.interactable = connectButton.interactable;
                 encryptedToggle.isOn = isEncrypted;
             }
+            if (localTestingToggle != null && connectButton != null)
+            {
+                localTestingToggle.interactable = connectButton.interactable;
+                localTestingToggle.isOn = isLocalTesting;
+            }
             if (clearButton != null && connectButton != null)
             {
                 clearButton.interactable = connectButton.interactable;
@@ -286,49 +309,39 @@ namespace M2MqttUnity.Examples
             updateUI = false;
         }
 
-
-        // protected override void DecodeMessage(string topic, byte[] message)
-        // {
-        //     string msg = System.Text.Encoding.UTF8.GetString(message);
-        //     Debug.Log("Received: " + msg);
-        //     StoreMessage(msg);
-        //     if (topic == "M2MQTT_Unity/test")
-        //     {
-        //         if (autoTest)
-        //         {
-        //             autoTest = false;
-        //             Disconnect();
-        //         }
-        //     }
-        // }
-
         protected override void DecodeMessage(string topic, byte[] message)
         {
             // Convert the byte array to a string message
             string msg = System.Text.Encoding.UTF8.GetString(message);
 
             // Log the raw message for debugging
-            Debug.Log("Received raw message: " + msg);
-            SetUiMessage("Received raw message: " + msg);
-            // Parse the JSON string into the BeamIndexData object
-            BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
+            Debug.Log("Received raw message: " + msg + "from topic" + topic);
+            SetUiMessage("Received raw message: " + msg + "from topic" + topic);
 
-            // Log the parsed beamIndex for debugging
-            Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
-            XRDebug.Log(msg);
-            // Find the BeamIndexMapping component in the scene
-            BeamIndexMapping beamIndexMapping = FindObjectOfType<BeamIndexMapping>();
-            if (beamIndexMapping != null)
+            // Check if the msg is about beam index
+            if (msg.Contains("beamIndex"))
             {
-                // Update the beam index using the parsed data
-                beamIndexMapping.StartSmoothTransition(beamData.beamIndex);
+                // Parse the JSON string into the BeamIndexData object
+                BeamIndexData beamData = JsonUtility.FromJson<BeamIndexData>(msg);
+
+                // Log the parsed beamIndex for debugging
+                Debug.Log("Parsed beamIndex: " + beamData.beamIndex);
+                XRDebug.Log(msg);
+                // Find the BeamIndexMapping component in the scene
+                BeamIndexMapping beamIndexMapping = FindObjectOfType<BeamIndexMapping>();
+                if (beamIndexMapping != null)
+                {
+                    // Update the beam index using the parsed data
+                    beamIndexMapping.StartSmoothTransition(beamData.beamIndex);
+                }
+                else
+                {
+                    // If the component isn't found, log an error message
+                    Debug.LogError("BeamIndexMapping component not found in the scene.");
+
+                }
             }
-            else
-            {
-                // If the component isn't found, log an error message
-                Debug.LogError("BeamIndexMapping component not found in the scene.");
-      
-            }
+            
         }
 
 
@@ -349,9 +362,13 @@ namespace M2MqttUnity.Examples
         protected override void Update()
         {
             base.Update(); // call ProcessMqttEvents()
-            if (LocalTesting && client != null && beams.Count > 0)
+            Debug.Log("islocaltesting" + isLocalTesting);
+            if (isLocalTesting && client != null && beams.Count > 0)
             {
                 StartCoroutine(PublishBeamIndexMessages());
+            }
+            if (!isLocalTesting)
+            {
             }
             if (eventMessages.Count > 0)
             {
