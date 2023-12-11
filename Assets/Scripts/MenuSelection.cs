@@ -19,31 +19,46 @@ public class MenuSelection : MonoBehaviour, IMixedRealityFocusHandler, IMixedRea
     // Update is called once per frame
     void Update()
     {
-        
+        Debug.Log("state" + TouchScreenKeyboard.visible);
+
         if (currentInputField != null && TouchScreenKeyboard.visible)
         {
-            Debug.Log("keyboard" + keyboard.active);
             currentInputField.text = keyboard.text;
-        }
-        if (currentInputField != null && (keyboard.status == TouchScreenKeyboard.Status.Done || keyboard.status == TouchScreenKeyboard.Status.Canceled))
-        {
-            if (currentInputField.name == "AddressInputField")
-            {
-                MQTTManager.SetUiMessage("Update IP into: " + currentInputField.text);
-                MQTTManager.SetBrokerAddress(currentInputField.text);
-            }
-            if (currentInputField.name == "PortInputField")
-            {
-                MQTTManager.SetUiMessage("Update port into: " + currentInputField.text);
-                MQTTManager.SetBrokerPort(currentInputField.text);
-            }
         }
     }
 
     public void KeyboardClose()
     {
-        
+        MQTTManager.SetUiMessage("keyboardClose");
+        string temp_str = currentInputField.text;
+        if (currentInputField.name == "AddressInputField")
+        {
+            MQTTManager.SetUiMessage("Update IP into: " + temp_str);
+            MQTTManager.ResetBrokerAddress(temp_str);
+        }
+        if (currentInputField.name == "PortInputField")
+        {
+            MQTTManager.SetUiMessage("Update port into: " + temp_str);
+            MQTTManager.ResetBrokerPort(temp_str);
+        }
+        if (currentInputField.name == "TopicInputField")
+        {
+            MQTTManager.SetUiMessage("Update topic into: " + temp_str);
+            MQTTManager.ResetTopic(temp_str);
+        }
     }
+
+    // Check if a point is inside the rectangle formed by the four corners of a RectTransform
+    bool IsPointInsideRectangle(Vector3 point, RectTransform rectTransform)
+    {
+        Vector3[] corners = new Vector3[4];
+        rectTransform.GetWorldCorners(corners);
+
+        // Check if the point is within the rectangle by comparing its coordinates
+        return point.x >= corners[0].x && point.x <= corners[2].x &&
+               point.y >= corners[0].y && point.y <= corners[2].y;
+    }
+
     Selectable FindClosestUIElement(Canvas canvas, Vector3 hitPoint)
     {
         Selectable[] uiElements = canvas.GetComponentsInChildren<Selectable>();
@@ -52,17 +67,19 @@ public class MenuSelection : MonoBehaviour, IMixedRealityFocusHandler, IMixedRea
 
         foreach (Selectable uiElement in uiElements)
         {
-            // Get the UI element's position in screen space
-            Vector3 uiElementScreenPos = uiElement.transform.position;
+            RectTransform rectTransform = uiElement.GetComponent<RectTransform>();
 
-            // Calculate the distance from the hit point to the UI element in screen space
-            float distance = Vector3.Distance(hitPoint, uiElementScreenPos);
-
-            // Update the closest UI element if this one is closer
-            if (distance < closestDistance)
+            // Check if the hit point is within the rectangle formed by the four corners
+            if (IsPointInsideRectangle(hitPoint, rectTransform))
             {
-                closestDistance = distance;
-                closestUIElement = uiElement;
+                float distance = Vector2.Distance(hitPoint, rectTransform.position);
+
+                // Update the closest UI element if this one is closer
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestUIElement = uiElement;
+                }
             }
         }
 
@@ -109,7 +126,7 @@ public class MenuSelection : MonoBehaviour, IMixedRealityFocusHandler, IMixedRea
                                 {
                                     // Find the closest button to the hit point
                                     Selectable closestUIElement = FindClosestUIElement(canvas, endPoint);
-                                    Debug.Log(closestUIElement.name);
+                             
                                     if (closestUIElement != null && closestUIElement.interactable && closestUIElement.name != "ConsoleInputField")
                                     {
                                         // Trigger the UI element's interaction
@@ -123,7 +140,14 @@ public class MenuSelection : MonoBehaviour, IMixedRealityFocusHandler, IMixedRea
                                         {
                                             InputField inputField = (InputField)closestUIElement;
                                             currentInputField = inputField;
-                                            keyboard = TouchScreenKeyboard.Open(inputField.text, TouchScreenKeyboardType.NumberPad, false, false, false, false);
+                                            if (inputField.name == "TopicInputField")
+                                            {
+                                                keyboard = TouchScreenKeyboard.Open(inputField.text, TouchScreenKeyboardType.Default, false, false, false, false);
+                                            }
+                                            else
+                                            {
+                                                keyboard = TouchScreenKeyboard.Open(inputField.text, TouchScreenKeyboardType.NumberPad, false, false, false, false);
+                                            }
                                             Debug.Log("InputField Clicked with text: " + inputField.text);
                                             // Trigger input field-specific actions
                                         }
@@ -132,6 +156,7 @@ public class MenuSelection : MonoBehaviour, IMixedRealityFocusHandler, IMixedRea
                                             Toggle toggle = (Toggle)closestUIElement;
                                             toggle.isOn = !toggle.isOn; // Example toggle action
                                             Debug.Log("Toggle Clicked");
+
                                         }
                                     }
                                 }

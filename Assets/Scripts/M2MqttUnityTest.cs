@@ -70,6 +70,7 @@ namespace M2MqttUnity.Examples
         public Toggle localTestingToggle;
         public InputField addressInputField;
         public InputField portInputField;
+        public InputField topicInputField;
         public Button connectButton;
         public Button disconnectButton;
         public Button testPublishButton;
@@ -122,9 +123,41 @@ namespace M2MqttUnity.Examples
             }
         }
 
+        public void SetTopic(string topicName)
+        {
+            if (topicInputField && !updateUI)
+            {
+                this.topicSub = topicName;
+            }
+        }
+
         public void SetBrokerPort(string brokerPort)
         {
             if (portInputField && !updateUI)
+            {
+                int.TryParse(brokerPort, out this.brokerPort);
+            }
+        }
+
+        public void ResetBrokerAddress(string brokerAddress)
+        {
+            if (addressInputField)
+            {
+                this.brokerAddress = brokerAddress;
+            }
+        }
+
+        public void ResetTopic(string topicName)
+        {
+            if (topicInputField)
+            {
+                this.topicSub = topicName;
+            }
+        }
+
+        public void ResetBrokerPort(string brokerPort)
+        {
+            if (portInputField)
             {
                 int.TryParse(brokerPort, out this.brokerPort);
             }
@@ -285,12 +318,19 @@ namespace M2MqttUnity.Examples
             if (addressInputField != null && connectButton != null)
             {
                 addressInputField.interactable = connectButton.interactable;
-                addressInputField.text = brokerAddress;
+                addressInputField.text = base.brokerAddress;
             }
             if (portInputField != null && connectButton != null)
             {
                 portInputField.interactable = connectButton.interactable;
-                portInputField.text = brokerPort.ToString();
+                portInputField.text = base.
+                    brokerPort.ToString();
+            }
+            if (topicInputField != null && connectButton != null)
+            {
+                topicInputField.interactable = connectButton.interactable;
+                topicInputField.text = topicSub;
+                topicInputField.textComponent.fontSize = 23;
             }
             if (encryptedToggle != null && connectButton != null)
             {
@@ -363,6 +403,7 @@ namespace M2MqttUnity.Examples
         {
             base.Update(); // call ProcessMqttEvents()
             Debug.Log("islocaltesting" + isLocalTesting);
+            Debug.Log("currentTopic" + topicSub);
             if (isLocalTesting && client != null && beams.Count > 0)
             {
                 StartCoroutine(PublishBeamIndexMessages());
